@@ -1,5 +1,5 @@
 # Tarento Exercise 
-===================
+
 
 Let’s assume that there are N number of categories and under each category there are M number of English sentences. 
 Also assume that your system receives S number of sample sentences every day. 
@@ -21,31 +21,34 @@ the other pre-existing sample sentences under each category.
 The second step is to pick the best Category for each of the given input sentences.
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~ Upload Category file into HDFS (This will go as Distributed cached file)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+### Upload Category file into HDFS (This will go as Distributed cached file)
+```bash
 [aravinth@local tarento]$ cat categories.txt
 animals
 cars
 
 [aravinth@local tarento]$ hadoop fs -put categories.txt /user/aravinth/
+```
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~ Upload categorized input file into HDFS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Upload categorized input file into HDFS
+
+```bash
 [aravinth@local tarento]$ cat categorized_input.txt
 animals^cats are pet
 animals^tigers are wild
 cars^maruthi is reliable
 cars^honda is spacious
 
+
 [aravinth@local tarento]$ hadoop fs -put categorized_input.txt /user/aravinth/categorized/
+```
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~ Upload Actual input file into HDFS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Upload Actual input file into HDFS
+
+```bash
 [aravinth@local tarento]$ cat actual_input.txt
 this is a cat
 this is a rabbit
@@ -53,12 +56,13 @@ this is a horse
 this is a mouse
 
 [aravinth@local tarento]$ hadoop fs -put actual_input.txt /user/aravinth/input/
+```
 
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~ Kick to pick the highest Similarity Score for a given sentence with each category.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Kick to pick the highest Similarity Score for a given sentence with each category.
+
+```bash
 [aravinth@local ~]$ hadoop jar /tmp/category-mr-1.0-jar-with-dependencies.jar com.tarento.category.mr.SentenceCategorizer hdfs://hdfs-cluster/user/aravinth/input/actual_input.txt hdfs://hdfs-cluster/user/aravinth/categorized/categorized_input.txt hdfs://hdfs-cluster/user/aravinth/out -category hdfs://hdfs-cluster/user/aravinth/categories.txt
 
 19/08/01 05:43:33 INFO client.AHSProxy: Connecting to Application History server at *******
@@ -135,11 +139,12 @@ this is a mouse
 		Bytes Read=156
 	File Output Format Counters
 		Bytes Written=331
+```
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~ Intermediate Similarity Score (for each category) File Generation.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Intermediate Similarity Score (for each category) File Generation.
+
+```bash
 [aravinth@local ~]$ hadoop fs -text /user/aravinth/out/part-r-00000
 this is a mouse	animals	0.5858709332013085
 this is a horse	animals	0.6705241461314837
@@ -149,10 +154,13 @@ this is a mouse	cars	0.8805081383265995
 this is a horse	cars	0.8428362335352474
 this is a rabbit	cars	0.7950841162486014
 this is a cat	cars	0.28443839880094235
+```
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~ Kick to pick the best category (Highest Similarity Score) for a given sentence
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+### Kick to pick the best category (Highest Similarity Score) for a given sentence
+
+```bash
 [aravinth@local ~]$ hadoop jar /tmp/category-mr-1.0-jar-with-dependencies.jar com.tarento.category.mr.SentenceCategorizerPostProcess hdfs://hdfs-cluster/user/aravinth/out/part-r-00000 hdfs://hdfs-cluster/user/aravinth/final-cat
 
 19/08/01 05:46:00 INFO client.AHSProxy: Connecting to Application History server at *******
@@ -225,11 +233,11 @@ this is a cat	cars	0.28443839880094235
 		Bytes Read=331
 	File Output Format Counters
 		Bytes Written=86
+```
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~ Final Categorization File Generation.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+### Final Categorization File Generation.
 
+```bash
 [aravinth@local ~]$ hadoop fs -ls /user/aravinth/final-cat
 Found 2 items
 -rw-r--r--   3 aravinth hdfs          0 2019-08-01 05:46 /user/aravinth/final-cat/_SUCCESS
@@ -241,3 +249,4 @@ this is a cat	animals
 this is a horse	cars
 this is a mouse	cars
 this is a rabbit	cars
+```
